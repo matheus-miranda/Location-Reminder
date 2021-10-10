@@ -13,6 +13,9 @@
 .externalNativeBuild
 .cxx
 
+# Firebase config
+app/google-services.json
+
 # Build application files
 *.apk
 *.aar

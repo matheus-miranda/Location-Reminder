@@ -13,6 +13,7 @@ android {
         applicationId "com.udacity.project4"
         minSdkVersion rootProject.minSdkVersion
         targetSdkVersion rootProject.targetSdkVersion
+        multiDexEnabled true
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -74,6 +75,14 @@ dependencies {
     // Maps & Geofencing
     implementation "com.google.android.gms:play-services-location:$playServicesVersion"
     implementation "com.google.android.gms:play-services-maps:$playServicesVersion"
+
+    // Firebase
+    implementation 'com.google.firebase:firebase-bom:28.4.2'
+    implementation 'com.firebaseui:firebase-ui-auth:8.0.0'
+
+    // Multidex support < API 21
+    implementation 'androidx.multidex:multidex:2.0.1'
+
 
     // Dependencies for local unit tests
     testImplementation "junit:junit:$junitVersion"
