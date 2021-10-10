@@ -28,7 +28,10 @@ Step by step explanation of how to get a dev environment running.
     c. Create a new api key and restrict it for android apps.
     d. Add your package name and SHA-1 signing-certificate fingerprint.
     c. Enable Maps SDK for Android from API restrictions and Save.
-    d. Copy the api key to the `google_maps_api.xml`
+    d. Copy the api key to the `google_maps_api.xml`, under values/google_maps_api.xml
+        <resources>
+                 <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">YOUR_API_KEY_HERE</string>
+        </resources>
 3. Run the app on your mobile phone or emulator with Google Play Services in it.
 ```
 
