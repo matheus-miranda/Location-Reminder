@@ -31,8 +31,7 @@ class AuthenticationActivity : AppCompatActivity() {
         bindListeners()
 
         // TODO: If the user was authenticated, send him to RemindersActivity
-        // TODO: a bonus is to customize the sign in flow to look nice using
-        // https://github.com/firebase/FirebaseUI-Android/blob/master/auth/README.md#custom-layout
+        // Must create an authListener and listen for current user state, either authenticated or not
     }
 
     private fun getResultFromLoginRequest() {
@@ -62,9 +61,11 @@ class AuthenticationActivity : AppCompatActivity() {
             AuthUI.IdpConfig.GoogleBuilder().build()
         )
 
+        // Create Intent to be passed on to loginRequest launcher
         val loginIntent = Intent(
             AuthUI.getInstance().createSignInIntentBuilder()
                 .setAvailableProviders(providers)
+                .setLogo(R.drawable.map)
                 .build()
         )
         loginRequest.launch(loginIntent)
