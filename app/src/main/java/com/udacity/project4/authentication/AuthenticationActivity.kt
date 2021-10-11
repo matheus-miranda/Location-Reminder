@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import com.firebase.ui.auth.AuthUI
@@ -24,34 +23,13 @@ class AuthenticationActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityAuthenticationBinding
     private lateinit var loginRequest: ActivityResultLauncher<Intent>
-    private val viewModel by viewModels<AuthenticationViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_authentication)
 
-        observeAuthenticationState()
         getResultFromLoginRequest()
         bindListeners()
-    }
-
-    /**
-     * Check if there is a firebase user currently logged in, then navigate to [RemindersActivity]
-     */
-    private fun observeAuthenticationState() {
-        viewModel.authenticationState.observe(this, { authenticationState ->
-            when (authenticationState) {
-                AuthenticationViewModel.AuthenticationState.AUTHENTICATED -> navigateToReminderActivity()
-                else -> Timber.i("No authenticated user")
-            }
-        })
-    }
-
-    private fun navigateToReminderActivity() {
-        Intent(this, RemindersActivity::class.java).apply {
-            startActivity(this)
-        }
-        finish()
     }
 
     /**
@@ -64,11 +42,18 @@ class AuthenticationActivity : AppCompatActivity() {
 
                 if (result.resultCode == Activity.RESULT_OK) {
                     Timber.i("Successfully signed in user " + FirebaseAuth.getInstance().currentUser?.displayName + "!")
-                    finish() // called because we are observing for an authenticated user
+                    navigateToReminderActivity()
                 } else {
                     Timber.i("Unsuccessful: " + response?.error?.message)
                 }
             }
+    }
+
+    private fun navigateToReminderActivity() {
+        finish()
+        Intent(this, RemindersActivity::class.java).apply {
+            startActivity(this)
+        }
     }
 
     private fun bindListeners() {
