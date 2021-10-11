@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import com.firebase.ui.auth.AuthUI
@@ -12,6 +13,7 @@ import com.firebase.ui.auth.IdpResponse
 import com.google.firebase.auth.FirebaseAuth
 import com.udacity.project4.R
 import com.udacity.project4.databinding.ActivityAuthenticationBinding
+import com.udacity.project4.locationreminders.RemindersActivity
 import timber.log.Timber
 
 /**
@@ -22,18 +24,39 @@ class AuthenticationActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityAuthenticationBinding
     private lateinit var loginRequest: ActivityResultLauncher<Intent>
+    private val viewModel by viewModels<AuthenticationViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_authentication)
 
+        observeAuthenticationState()
         getResultFromLoginRequest()
         bindListeners()
-
-        // TODO: If the user was authenticated, send him to RemindersActivity
-        // Must create an authListener and listen for current user state, either authenticated or not
     }
 
+    /**
+     * Check if there is a firebase user currently logged in, then navigate to [RemindersActivity]
+     */
+    private fun observeAuthenticationState() {
+        viewModel.authenticationState.observe(this, { authenticationState ->
+            when (authenticationState) {
+                AuthenticationViewModel.AuthenticationState.AUTHENTICATED -> navigateToReminderActivity()
+                else -> Timber.i("No authenticated user")
+            }
+        })
+    }
+
+    private fun navigateToReminderActivity() {
+        Intent(this, RemindersActivity::class.java).apply {
+            startActivity(this)
+        }
+        finish()
+    }
+
+    /**
+     * Get the response from the login Intent to find out if user was able to sign in/up successfully
+     */
     private fun getResultFromLoginRequest() {
         loginRequest =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -41,6 +64,7 @@ class AuthenticationActivity : AppCompatActivity() {
 
                 if (result.resultCode == Activity.RESULT_OK) {
                     Timber.i("Successfully signed in user " + FirebaseAuth.getInstance().currentUser?.displayName + "!")
+                    finish() // called because we are observing for an authenticated user
                 } else {
                     Timber.i("Unsuccessful: " + response?.error?.message)
                 }

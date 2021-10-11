@@ -27,6 +27,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".locationreminders.ReminderDescriptionActivity" />
+        <activity android:name=".locationreminders.RemindersActivity" />
 
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
