@@ -102,10 +102,13 @@ fun DataBindingIdlingResource.monitorActivity(
 }
 
 /**
+ * TODO uncomment and test function when implemented idling resource
+ *
  * Sets the fragment from a [FragmentScenario] to be used from [DataBindingIdlingResource].
- */
+
 fun DataBindingIdlingResource.monitorFragment(fragmentScenario: FragmentScenario<out Fragment>) {
     fragmentScenario.onFragment {
         this.activity = it.requireActivity()
     }
 }
+*/
