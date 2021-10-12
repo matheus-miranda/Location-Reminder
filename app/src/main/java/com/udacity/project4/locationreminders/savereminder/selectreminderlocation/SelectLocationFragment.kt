@@ -75,29 +75,25 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         }
     }
 
-    private fun onLocationSelected() {
-        //        TODO: When the user confirms on the selected location,
-        //         send back the selected location details to the view model
-        //         and navigate back to the previous fragment to save the reminder and add the geofence
-    }
-
-
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.map_options, menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
-        // TODO: Change the map type based on the user's selection.
         R.id.normal_map -> {
+            map.mapType = GoogleMap.MAP_TYPE_NORMAL
             true
         }
         R.id.hybrid_map -> {
+            map.mapType = GoogleMap.MAP_TYPE_HYBRID
             true
         }
         R.id.satellite_map -> {
+            map.mapType = GoogleMap.MAP_TYPE_SATELLITE
             true
         }
         R.id.terrain_map -> {
+            map.mapType = GoogleMap.MAP_TYPE_TERRAIN
             true
         }
         else -> super.onOptionsItemSelected(item)
@@ -143,6 +139,12 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                 requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
             }
         }
+    }
+
+    private fun onLocationSelected() {
+        //        TODO: When the user confirms on the selected location,
+        //         send back the selected location details to the view model
+        //         and navigate back to the previous fragment to save the reminder and add the geofence
     }
 
 }
