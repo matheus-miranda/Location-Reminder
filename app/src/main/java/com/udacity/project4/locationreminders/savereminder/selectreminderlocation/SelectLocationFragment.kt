@@ -10,10 +10,13 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.udacity.project4.R
@@ -24,6 +27,7 @@ import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import org.koin.android.ext.android.inject
 import timber.log.Timber
 import java.util.*
+
 
 class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
@@ -52,8 +56,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
         // Check for location permission
         permissionRequestIntent()
-
-        // TODO zoom to the user location
 
         // TODO: add style to the map
 
@@ -130,6 +132,17 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             ) == PackageManager.PERMISSION_GRANTED -> {
                 Timber.i("Location permission granted")
                 map.isMyLocationEnabled = true
+
+                // Zoom to last known location
+                val fusedLocationClient =
+                    LocationServices.getFusedLocationProviderClient(requireContext())
+                fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+                    if (location != null) {
+                        val lastLocation = LatLng(location.latitude, location.longitude)
+                        map.animateCamera(CameraUpdateFactory.newLatLngZoom(lastLocation, 15f))
+                    }
+                }
+
             }
             shouldShowRequestPermissionRationale(
                 Manifest.permission.ACCESS_FINE_LOCATION
