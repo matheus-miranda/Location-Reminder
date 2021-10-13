@@ -13,6 +13,9 @@ import androidx.databinding.DataBindingUtil
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.MarkerOptions
 import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.databinding.FragmentSelectLocationBinding
@@ -20,6 +23,7 @@ import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import org.koin.android.ext.android.inject
 import timber.log.Timber
+import java.util.*
 
 class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
@@ -28,6 +32,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     private lateinit var binding: FragmentSelectLocationBinding
     private lateinit var map: GoogleMap
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
+    private lateinit var userMarker: Marker
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -47,15 +52,12 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
         // Check for location permission
         permissionRequestIntent()
-        permissionRequest()
 
         // TODO zoom to the user location
 
-//        TODO: add style to the map
-//        TODO: put a marker to location that the user selected
+        // TODO: add style to the map
 
-
-//        TODO: call this function after the user confirms on the selected location
+        // TODO: call this function after the user confirms on the selected location
         onLocationSelected()
 
         return binding.root
@@ -72,6 +74,10 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     override fun onMapReady(gMap: GoogleMap?) {
         gMap?.let { googleMap ->
             map = googleMap
+
+            setMapClick(map)
+            setPoiClick(map)
+            locationPermissionRequest()
         }
     }
 
@@ -114,15 +120,16 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     }
 
     /**
-     * Check the permission and request it
+     * Check the permission and request it to enable live tracking
      */
-    private fun permissionRequest() {
+    private fun locationPermissionRequest() {
         when {
             ContextCompat.checkSelfPermission(
                 requireContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED -> {
                 Timber.i("Location permission granted")
+                map.isMyLocationEnabled = true
             }
             shouldShowRequestPermissionRationale(
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -141,10 +148,45 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         }
     }
 
+    /**
+     * Adds a marker to the position that the user selected
+     */
+    private fun setMapClick(map: GoogleMap) {
+        map.setOnMapClickListener { latLng ->
+            val snippet = String.format(
+                Locale.getDefault(),
+                getString(R.string.lat_long_snippet),
+                latLng.latitude,
+                latLng.longitude
+            )
+            map.addMarker(
+                MarkerOptions()
+                    .position(latLng)
+                    .title(getString(R.string.dropped_pin))
+                    .snippet(snippet)
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+            )
+        }
+    }
+
+    /**
+     * Adds a marker when the user clicks on a map POI
+     */
+    private fun setPoiClick(map: GoogleMap) {
+        map.setOnPoiClickListener { poi ->
+            val poiMarker = map.addMarker(
+                MarkerOptions()
+                    .position(poi.latLng)
+                    .title(poi.name)
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+            )
+            poiMarker.showInfoWindow()
+        }
+    }
+
     private fun onLocationSelected() {
         //        TODO: When the user confirms on the selected location,
         //         send back the selected location details to the view model
         //         and navigate back to the previous fragment to save the reminder and add the geofence
     }
-
 }
