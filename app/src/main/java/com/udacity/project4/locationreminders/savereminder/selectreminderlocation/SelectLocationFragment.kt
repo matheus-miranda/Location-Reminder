@@ -32,7 +32,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     private lateinit var binding: FragmentSelectLocationBinding
     private lateinit var map: GoogleMap
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
-    private lateinit var userMarker: Marker
+    private var userMarker: Marker? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -159,13 +159,18 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                 latLng.latitude,
                 latLng.longitude
             )
-            map.addMarker(
+
+            // If user already selected a marker, remove it and add the new one to the map
+            userMarker?.remove()
+
+            userMarker = map.addMarker(
                 MarkerOptions()
                     .position(latLng)
                     .title(getString(R.string.dropped_pin))
                     .snippet(snippet)
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
             )
+            userMarker?.showInfoWindow()
         }
     }
 
@@ -174,13 +179,16 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
      */
     private fun setPoiClick(map: GoogleMap) {
         map.setOnPoiClickListener { poi ->
-            val poiMarker = map.addMarker(
+
+            userMarker?.remove()
+
+            userMarker = map.addMarker(
                 MarkerOptions()
                     .position(poi.latLng)
                     .title(poi.name)
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
             )
-            poiMarker.showInfoWindow()
+            userMarker?.showInfoWindow()
         }
     }
 
