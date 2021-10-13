@@ -3,6 +3,7 @@ package com.udacity.project4.locationreminders.savereminder.selectreminderlocati
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.content.res.Resources
 import android.os.Bundle
 import android.view.*
 import android.widget.Toast
@@ -15,10 +16,7 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Marker
-import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.*
 import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.databinding.FragmentSelectLocationBinding
@@ -57,8 +55,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         // Check for location permission
         permissionRequestIntent()
 
-        // TODO: add style to the map
-
         // TODO: call this function after the user confirms on the selected location
         onLocationSelected()
 
@@ -77,6 +73,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         gMap?.let { googleMap ->
             map = googleMap
 
+            setMapStyle(map)
             setMapClick(map)
             setPoiClick(map)
             locationPermissionRequest()
@@ -158,6 +155,23 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                 // Permission has not yet been asked, so ask here
                 requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
             }
+        }
+    }
+
+    /**
+     * Customize the map with the JSON file generated from
+     * https://mapstyle.withgoogle.com/
+     */
+    private fun setMapStyle(map: GoogleMap) {
+        try {
+            val success = map.setMapStyle(
+                MapStyleOptions.loadRawResourceStyle(requireContext(), R.raw.map_style)
+            )
+            if (!success) {
+                Timber.e("Failed to parse the style")
+            }
+        } catch (e: Resources.NotFoundException) {
+            Timber.e("Style not found: $e")
         }
     }
 
