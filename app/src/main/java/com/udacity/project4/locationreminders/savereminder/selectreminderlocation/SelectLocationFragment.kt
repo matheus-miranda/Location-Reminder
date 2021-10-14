@@ -55,9 +55,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         // Check for location permission
         permissionRequestIntent()
 
-        // TODO: call this function after the user confirms on the selected location
-        onLocationSelected()
-
         return binding.root
     }
 
@@ -197,6 +194,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                     .snippet(snippet)
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
             )
+            onLocationSelected(latLng)
             userMarker?.showInfoWindow()
         }
     }
@@ -215,13 +213,21 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                     .title(poi.name)
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
             )
+            onLocationSelected(poi.latLng)
             userMarker?.showInfoWindow()
         }
     }
 
-    private fun onLocationSelected() {
-        //        TODO: When the user confirms on the selected location,
-        //         send back the selected location details to the view model
-        //         and navigate back to the previous fragment to save the reminder and add the geofence
+    /**
+     * When the user confirms on the selected location, send back the selected location details
+     * to the view model and navigate back to the previous fragment to save the reminder and add
+     * the geofence
+     */
+    private fun onLocationSelected(latLng: LatLng) {
+        userMarker?.let { marker ->
+            _viewModel.reminderSelectedLocationStr.value = marker.title.toString()
+            _viewModel.latitude.value = latLng.latitude
+            _viewModel.longitude.value = latLng.longitude
+        }
     }
 }
