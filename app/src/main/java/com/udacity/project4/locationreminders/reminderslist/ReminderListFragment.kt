@@ -1,5 +1,7 @@
 package com.udacity.project4.locationreminders.reminderslist
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import androidx.databinding.DataBindingUtil
@@ -11,6 +13,10 @@ import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import com.udacity.project4.utils.setTitle
 import com.udacity.project4.utils.setup
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import android.location.LocationManager
+import android.provider.Settings
+import androidx.appcompat.app.AlertDialog
+
 
 class ReminderListFragment : BaseFragment() {
 
@@ -34,6 +40,9 @@ class ReminderListFragment : BaseFragment() {
         setTitle(getString(R.string.app_name))
 
         binding.refreshLayout.setOnRefreshListener { _viewModel.loadReminders() }
+
+        // Check if user has location turned on
+        checkDeviceLocationSettings()
 
         return binding.root
     }
@@ -74,5 +83,35 @@ class ReminderListFragment : BaseFragment() {
         super.onCreateOptionsMenu(menu, inflater)
         // display logout as menu item
         inflater.inflate(R.menu.main_menu, menu)
+    }
+
+    /**
+     * Check if user has GPS enabled
+     */
+    private fun checkDeviceLocationSettings(resolve: Boolean = true) {
+        val locationManager =
+            requireContext().getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            alertMessageNoGps()
+        }
+    }
+
+    /**
+     * Build alert dialog to request GPS permission
+     */
+    private fun alertMessageNoGps() {
+        val builder = AlertDialog.Builder(requireContext())
+        builder.apply {
+            setMessage(R.string.location_required_error)
+            setCancelable(false)
+            setPositiveButton(android.R.string.ok) { _, _ ->
+                startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+            }
+            setNegativeButton(android.R.string.cancel) { dialog, _ ->
+                dialog.cancel()
+            }
+            val alertDialog = builder.create()
+            alertDialog.show()
+        }
     }
 }
